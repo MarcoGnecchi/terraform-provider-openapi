@@ -27,7 +27,7 @@ type ContentDeliveryNetworkV1 struct {
 
 	ObjectProperty *ObjectProperty `json:"object_property"`
 
-	ObjectNestedSchemeProperty *ContentDeliveryNetworkV1ObjectNestedSchemeProperty `json:"object_nested_scheme_property,omitempty"`
+	ObjectNestedSchemeProperty []ContentDeliveryNetworkV1ObjectNestedSchemeProperty `json:"object_nested_scheme_property,omitempty"`
 
 	ArrayOfObjectsExample []ContentDeliveryNetworkV1ArrayOfObjectsExample `json:"arrayOfObjectsExample"`
 }
