@@ -14,6 +14,12 @@ resource "swaggercodegen_cdn_v1" "my_cdn" {
   better_example_number_field_name = 15.78
   example_boolean = true
 
+  object_nested_scheme_property {
+    object_property {
+      account = "something"
+    }
+  }
+
   object_property = {
     message = "some message news2"
     detailed_message = "some message news with details"
