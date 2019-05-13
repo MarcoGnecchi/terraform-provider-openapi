@@ -22,6 +22,7 @@ const extTfSensitive = "x-terraform-sensitive"
 const extTfFieldName = "x-terraform-field-name"
 const extTfFieldStatus = "x-terraform-field-status"
 const extTfID = "x-terraform-id"
+const extTfNestedObject = "x-terraform-nested-object"
 
 // Operation level extensions
 const extTfResourceTimeout = "x-terraform-resource-timeout"
@@ -236,6 +237,30 @@ func (o *SpecV2Resource) createSchemaDefinitionProperty(propertyName string, pro
 	// the fact that this field should be used as identifier of the resource
 	if terraformID, ok := property.Extensions.GetBool(extTfID); ok && terraformID {
 		schemaDefinitionProperty.IsIdentifier = true
+	}
+
+	// As per @apparentlymart comment in https://github.com/hashicorp/terraform/issues/21217, currently the only
+	// way to configure nested structs is by defining a TypeList property which contains the object schema in the elem
+	// AND the list is restricted to 1 element. This extension makes possible for service providers to simulate this by
+	// describing the property definition as an array:
+	//object_nested_scheme_property: # this also covers object within objects
+	//	type: "object"
+	//  required:
+	//	- object_property
+	//  properties:
+	//  object_property: # as per 'apparentlymart' comment, this is the only way to make nested structs possible in terraform at the moment
+	//	  type: "array"
+	//    x-terraform-nested-object: true
+	//    items:
+	//	    type: "object" # nested properties required type equal object to be considered as object
+	//      properties:
+	//        account:
+	//	        type: string
+	if isNestedObject, ok := property.Extensions.GetBool(extTfNestedObject); ok && isNestedObject {
+		if schemaDefinitionProperty.Type != typeList {
+			return nil, fmt.Errorf("failed to confifure schema definition for '%s' property: only array properties are allowed to have the '%s' extension", schemaDefinitionProperty.Name, extTfNestedObject)
+		}
+		schemaDefinitionProperty.IsNestedObject = true
 	}
 
 	if immutable, ok := property.Extensions.GetBool(extTfImmutable); ok && immutable {

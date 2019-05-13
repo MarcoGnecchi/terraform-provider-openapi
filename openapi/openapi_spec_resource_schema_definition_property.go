@@ -28,6 +28,7 @@ type specSchemaDefinitionProperty struct {
 	PreferredName      string
 	Type               schemaDefinitionPropertyType
 	ArrayItemsType     schemaDefinitionPropertyType
+	IsNestedObject     bool
 	Required           bool
 	ReadOnly           bool
 	ForceNew           bool
@@ -148,6 +149,9 @@ func (s *specSchemaDefinitionProperty) terraformSchema() (*schema.Schema, error)
 				return nil, err
 			}
 			terraformSchema.Elem = objectSchema
+			if s.IsNestedObject {
+				terraformSchema.MaxItems = 1
+			}
 		}
 	}
 
